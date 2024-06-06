@@ -49,12 +49,12 @@ jobs:
 
       - name: Create target directory on EC2
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "mkdir -p /var/www/html/laravelcicd"
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "sudo mkdir -p /var/www/html/laravelcicd && sudo chown ${{ secrets.SSH_USERNAME }}:$${{ secrets.SSH_USERNAME }} /var/www/html/laravelcicd"
 
       - name: Copy files to EC2
         run: |
           scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r ./* ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/var/www/html/laravelcicd
-          
+
       - name: SSH into EC2 and deploy
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "bash -s" < ./scripts/deploy.sh
