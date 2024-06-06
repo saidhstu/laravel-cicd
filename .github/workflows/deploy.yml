@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
+      - name: Create SSH Directory
+        run: mkdir -p ~/.ssh
+
       - name: Decode SSH Key
         id: decode_key
         run: echo "${{ secrets.SSH_KEY_BASE64 }}" | base64 -d > ~/.ssh/id_rsa
