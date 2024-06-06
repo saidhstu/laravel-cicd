@@ -17,6 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install Apache2
+        run: sudo apt-get update && sudo apt-get install -y apache2
+
       - name: Setup PHP with PECL extensions
         uses: shivammathur/setup-php@v2
         with:
@@ -47,4 +50,3 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: ./scripts/deploy.sh
-        
