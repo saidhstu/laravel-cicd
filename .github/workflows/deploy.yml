@@ -47,6 +47,10 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} echo "SSH connection successful"
 
+      - name: Create target directory on EC2
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "mkdir -p /var/www/html/laravelcicd"
+
       - name: Copy files to EC2
         run: |
           scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r ./* ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/var/www/html/laravelcicd
