@@ -48,20 +48,9 @@ jobs:
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} echo "SSH connection successful"
 
       - name: Copy files to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ~/.ssh/id_rsa
-          port: ${{ secrets.SSH_PORT }}
-          source: "."
-          target: "/var/www/html/laravelcicd"
-
+        run: |
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r ./* ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/var/www/html/laravelcicd
+          
       - name: SSH into EC2 and deploy
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ~/.ssh/id_rsa
-          port: ${{ secrets.SSH_PORT }}
-          script: ./scripts/deploy.sh
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "bash -s" < ./scripts/deploy.sh
