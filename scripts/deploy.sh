@@ -17,11 +17,7 @@ if ! command -v mysql &> /dev/null; then
     sudo service mysql start
 fi
 
-# Configure MySQL
-sudo mysql -e "CREATE DATABASE IF NOT EXISTS ${DB_DATABASE};"
-sudo mysql -e "CREATE USER IF NOT EXISTS '${DB_USERNAME}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
-sudo mysql -e "GRANT ALL PRIVILEGES ON ${DB_DATABASE}.* TO '${DB_USERNAME}'@'localhost';"
-sudo mysql -e "FLUSH PRIVILEGES;"
+
 
 # Navigate to the project directory
 cd /var/www/html/laravelcicd
@@ -32,13 +28,13 @@ if [ -f composer.lock ]; then
     LOCK_HASH_REMOTE=$(ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${SSH_USERNAME}@${SSH_HOST} "md5sum /var/www/html/laravelcicd/composer.lock | awk '{ print $1 }'")
     if [ "$LOCK_HASH_LOCAL" != "$LOCK_HASH_REMOTE" ]; then
         echo "composer.lock has changed. Installing dependencies..."
-        composer install --prefer-dist --no-progress
+        composer install --prefer-dist --no-progress --ignore-platform-req=ext-curl --ignore-platform-req=ext-dom --ignore-platform-req=ext-xml
     else
         echo "composer.lock has not changed. Skipping composer install."
     fi
 else
     echo "composer.lock not found. Installing dependencies..."
-    composer install --prefer-dist --no-progress
+    composer install --prefer-dist --no-progress --ignore-platform-req=ext-curl --ignore-platform-req=ext-dom --ignore-platform-req=ext-xml
 fi
 
 # Run database migrations
