@@ -13,6 +13,13 @@ jobs:
     name: My Laravel CICD App
     runs-on: ubuntu-latest
 
+    env:
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,12 +33,6 @@ jobs:
           php-version: '8.3'
           extensions: imagick, swoole, intl, zip, mbstring, gd, zlib, curl, dom, xml
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
-
       - name: Create SSH Directory
         run: mkdir -p ~/.ssh
 
@@ -40,8 +41,6 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-          ls -al ~/.ssh
-          cat ~/.ssh/id_rsa
 
       - name: Verify SSH Connection
         run: |
