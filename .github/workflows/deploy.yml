@@ -1,4 +1,11 @@
 name: Laravel 3-Tier GitHub Action with CI/CD
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
 
 jobs:
   laravel:
