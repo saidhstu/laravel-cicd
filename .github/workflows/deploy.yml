@@ -94,10 +94,12 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
+          REMOTE_DIR: /var/www/html
         run: |
           echo "$SSH_PRIVATE_KEY" > key.pem
           chmod 600 key.pem
           mkdir -p ~/.ssh
           ssh-keyscan -p $SSH_PORT $SSH_HOST >> ~/.ssh/known_hosts
-          scp -i key.pem -P $SSH_PORT -r ./* $SSH_USERNAME@$SSH_HOST:/path/to/deploy
-          ssh -i key.pem -p $SSH_PORT $SSH_USERNAME@$SSH_HOST 'cd /path/to/deploy && ./deploy.sh'
+          ssh -i key.pem -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "mkdir -p $REMOTE_DIR"
+          scp -i key.pem -P $SSH_PORT -r ./* $SSH_USERNAME@$SSH_HOST:$REMOTE_DIR
+          ssh -i key.pem -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "cd $REMOTE_DIR && ./deploy.sh"
