@@ -1,28 +1,33 @@
-#!/usr/bin/env bash
+#!/bin/bash
+set -e
 
+echo "Deployment started ..."
 
-# Install PHP and Composer if not installed
-if ! command -v php &> /dev/null; then
-    sudo apt-get update
-    sudo apt-get install -y php php-cli php-mbstring unzip php-xml
-fi
+# Enter maintenance mode or return true
+# if already is in maintenance mode
+(php artisan down) || true
 
-if ! command -v composer &> /dev/null; then
-    curl -sS https://getcomposer.org/installer | php
-    sudo mv composer.phar /usr/local/bin/composer
-fi
+# Pull the latest version of the app
+git reset --hard
+git pull origin master
 
-# Install MySQL if not installed
-if ! command -v mysql &> /dev/null; then
-    sudo apt-get install -y mysql-server
-    sudo service mysql start
-fi
+# Install composer dependencies
+composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
+# Clear the old cache
+php artisan clear-compiled
 
-# Navigate to the project directory
-cd /var/www/html/laravelcicd
+# Recreate cache
+php artisan optimize
 
-
+# Compile npm assets
+yarn
+yarn build
 
 # Run database migrations
 php artisan migrate --force
+
+# Exit maintenance mode
+php artisan up
+
+echo "Deployment finished!"
