@@ -92,7 +92,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_USERNAME: ubuntu
           SSH_PORT: ${{ secrets.SSH_PORT }}
           REMOTE_DIR: /var/www/html
         run: |
@@ -100,6 +100,7 @@ jobs:
           chmod 600 key.pem
           mkdir -p ~/.ssh
           ssh-keyscan -p $SSH_PORT $SSH_HOST >> ~/.ssh/known_hosts
-          ssh -i key.pem -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "mkdir -p $REMOTE_DIR"
-          scp -i key.pem -P $SSH_PORT -r ./* $SSH_USERNAME@$SSH_HOST:$REMOTE_DIR
-          ssh -i key.pem -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "cd $REMOTE_DIR && ./scripts/deploy.sh"
+          ssh -i key.pem -p $SSH_PORT ubuntu@$SSH_HOST "sudo chown -R ubuntu:ubuntu $REMOTE_DIR"
+          scp -i key.pem -P $SSH_PORT -r ./* ubuntu@$SSH_HOST:$REMOTE_DIR
+          ssh -i key.pem -p $SSH_PORT ubuntu@$SSH_HOST "chmod +x $REMOTE_DIR/scripts/deploy.sh"
+          ssh -i key.pem -p $SSH_PORT ubuntu@$SSH_HOST "cd $REMOTE_DIR && ./scripts/deploy.sh"
