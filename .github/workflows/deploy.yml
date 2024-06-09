@@ -102,4 +102,4 @@ jobs:
           ssh-keyscan -p $SSH_PORT $SSH_HOST >> ~/.ssh/known_hosts
           ssh -i key.pem -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "mkdir -p $REMOTE_DIR"
           scp -i key.pem -P $SSH_PORT -r ./* $SSH_USERNAME@$SSH_HOST:$REMOTE_DIR
-          ssh -i key.pem -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "cd $REMOTE_DIR && ./deploy.sh"
+          ssh -i key.pem -p $SSH_PORT $SSH_USERNAME@$SSH_HOST "cd $REMOTE_DIR && ./scripts/deploy.sh"
