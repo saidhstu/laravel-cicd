@@ -1,8 +1,6 @@
 name: Laravel 3-Tier GitHub Action with CI/CD
+
 on:
-  pull_request:
-    branches:
-      - master
   push:
     branches:
       - master
@@ -58,8 +56,6 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          # Use composer.json for key, if composer.lock is not committed.
-          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
@@ -92,11 +88,14 @@ jobs:
       - name: Compile assets
         run: yarn build
 
-      - name: Deploy to server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          port: ${{ secrets.SSH_PORT }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          script: cd ${{ secrets.SSH_PATH }} && ./.scripts/deploy.sh
+      - name: Deploy to server via SCP
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > key.pem
+          chmod 600 key.pem
+          scp -i key.pem -P $SSH_PORT -r ./* $SSH_USERNAME@$SSH_HOST:/path/to/deploy
+          ssh -i key.pem -p $SSH_PORT $SSH_USERNAME@$SSH_HOST 'cd /path/to/deploy && ./deploy.sh'
