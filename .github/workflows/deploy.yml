@@ -97,5 +97,5 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > key.pem
           chmod 600 key.pem
-          scp -i key.pem -P $SSH_PORT -r ./* $SSH_USERNAME@$SSH_HOST:/path/to/deploy
-          ssh -i key.pem -p $SSH_PORT $SSH_USERNAME@$SSH_HOST 'cd /path/to/deploy && ./deploy.sh'
+          scp -i key.pem -P $SSH_PORT -r ./* $SSH_USERNAME@$SSH_HOST:/var/www/html
+          ssh -i key.pem -p $SSH_PORT $SSH_USERNAME@$SSH_HOST 'cd /var/www/html && ./deploy.sh'
