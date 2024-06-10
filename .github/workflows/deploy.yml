@@ -45,7 +45,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: sqlite, pdo_sqlite, pcntl, zip, intl, exif, mbstring, dom, fileinfo, mysql
+          extensions: sqlite, pdo_sqlite, pcntl, zip, intl, exif, mbstring, dom, fileinfo, mysql, dom
           coverage: xdebug
 
       - name: Get composer cache directory
@@ -100,7 +100,9 @@ jobs:
           chmod 600 key.pem
           mkdir -p ~/.ssh
           ssh-keyscan -p $SSH_PORT $SSH_HOST >> ~/.ssh/known_hosts
+          ssh -i key.pem -p $SSH_PORT ubuntu@$SSH_HOST "sudo apt-get update && sudo apt-get install -y php-xml"
           ssh -i key.pem -p $SSH_PORT ubuntu@$SSH_HOST "sudo chown -R ubuntu:ubuntu $REMOTE_DIR"
+          scp -i key.pem -P $SSH_PORT -r .git/* ubuntu@$SSH_HOST:$REMOTE_DIR/.git
           scp -i key.pem -P $SSH_PORT -r ./* ubuntu@$SSH_HOST:$REMOTE_DIR
           ssh -i key.pem -p $SSH_PORT ubuntu@$SSH_HOST "chmod +x $REMOTE_DIR/scripts/deploy.sh"
           ssh -i key.pem -p $SSH_PORT ubuntu@$SSH_HOST "cd $REMOTE_DIR && ./scripts/deploy.sh"
