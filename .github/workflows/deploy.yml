@@ -7,12 +7,12 @@ on:
 
 jobs:
   laravel:
-    name: Laravel (PHP ${{ matrix.php-versions }})
+    name: Laravel (PHP 8.2)
     runs-on: ubuntu-latest
     env:
-      DB_DATABASE: laravel
-      DB_USERNAME: root
-      DB_PASSWORD: password
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       BROADCAST_DRIVER: log
       CACHE_DRIVER: redis
       QUEUE_CONNECTION: redis
@@ -22,8 +22,8 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: laravel
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
         ports:
           - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -33,10 +33,7 @@ jobs:
         ports:
           - 6379/tcp
         options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    strategy:
-      fail-fast: false
-      matrix:
-        php-versions: ['8.2']
+        
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,7 +41,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: '8.2'
           extensions: sqlite, pdo_sqlite, pcntl, zip, intl, exif, mbstring, dom, fileinfo, mysql, dom
           coverage: xdebug
 
@@ -70,23 +67,12 @@ jobs:
       - name: Clear Config
         run: php artisan config:clear
 
-      - name: Run Migration
-        run: php artisan migrate -v
-        env:
-          DB_PORT: ${{ job.services.mysql.ports['3306'] }}
-          REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
-
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text
         env:
           DB_PORT: ${{ job.services.mysql.ports['3306'] }}
           REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
 
-      - name: Install Yarn dependencies
-        run: yarn
-
-      - name: Compile assets
-        run: yarn build
 
       - name: Deploy to server via SCP
         env:

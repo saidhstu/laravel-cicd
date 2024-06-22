@@ -6,9 +6,6 @@ echo "Deployment started ..."
 # Enter maintenance mode or return true if already in maintenance mode
 (php artisan down) || true
 
-# Install composer dependencies
-composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-
 # Clear the old cache
 php artisan clear-compiled
 
